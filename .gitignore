@@ -1,0 +1,54 @@
+# -----------------------------
+# Global
+# -----------------------------
+.DS_Store
+Thumbs.db
+*.log
+*.local
+node_modules/
+
+# VS Code: keep recommended extensions file if present
+.vscode/*
+!.vscode/extensions.json
+
+# -----------------------------
+# Backend (Laravel)
+# -----------------------------
+backend/.env
+backend/.env.backup
+backend/.env.production
+backend/.phpactor.json
+backend/.phpunit.result.cache
+backend/.fleet/
+backend/.idea/
+backend/.nova/
+backend/.phpunit.cache/
+backend/.vscode/
+backend/.zed/
+backend/auth.json
+backend/Homestead.json
+backend/Homestead.yaml
+
+backend/node_modules/
+backend/vendor/
+backend/public/build/
+backend/public/hot
+backend/public/storage
+backend/storage/*.key
+backend/storage/pail
+
+# -----------------------------
+# Frontend (Vite/React)
+# -----------------------------
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+frontend/logs
+frontend/node_modules/
+frontend/dist/
+frontend/dist-ssr/
+
+frontend/.vscode/*
+!frontend/.vscode/extensions.json
+frontend/.idea/
