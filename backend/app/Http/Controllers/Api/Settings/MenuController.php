@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\MenuItem;
@@ -94,6 +94,10 @@ class MenuController extends Controller
 
     private function createCrudPermissionsForMenu(MenuItem $menu): void
     {
+        if ($menu->parent_id == null) {
+            return;
+        }
+        
         $slug = Str::slug($menu->label);
         $actions = ['view', 'create', 'update', 'delete'];
 

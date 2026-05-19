@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\Permission;
@@ -14,6 +14,9 @@ class PermissionController extends Controller
     public function index(): JsonResponse
     {
         $permissions = Permission::query()
+            ->with(['menus' => function ($q) {
+                $q->select('menu_items.id', 'label');
+            }])
             ->orderBy('id')
             ->get();
 

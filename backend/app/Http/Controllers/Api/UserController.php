@@ -105,9 +105,23 @@ class UserController extends Controller
         $validated = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'email', Rule::unique('users', 'email')->ignore($user->id)],
-            'password' => ['nullable', 'string', 'min:6'],
+            'password' => ['nullable', 'string', 'min:5'],
             'role_id' => ['required', 'integer', 'exists:roles,id'],
         ]);
+
+        if($validated['password'] == null) {
+            $validated['password'] = $user->password;
+        }
+
+        if($user->id === auth()->id() && $user->role_id !== $validated['role_id']) {
+            return response()->json([
+                'message' => 'Anda tidak dapat mengubah peran Anda sendiri.',
+            ], 403);
+        }
+
+        if($user->password === $validated['password']) {
+            $validated['password'] = null;
+        }
 
         $user->update([
             'name' => $validated['name'],

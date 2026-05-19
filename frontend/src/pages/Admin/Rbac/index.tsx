@@ -4,6 +4,7 @@ import PageContainer from '../../../components/layout/PageContainer';
 import Breadcrumb from '../../../components/ui/Breadcrumb';
 import Button from '../../../components/ui/Button';
 import { useModal } from '../../../hooks/UseModal';
+import { useAuth } from '../../../hooks/useAuth';
 import api from '../../../api/axios';
 import { showConfirmDialog, showToast } from '../../../utils/alert';
 
@@ -12,6 +13,7 @@ type PermissionRow = {
     name: string;
     slug: string;
     description?: string | null;
+    menus?: { id: number; label: string }[];
 };
 
 type RoleRow = {
@@ -121,6 +123,21 @@ const RoleFormModal: React.FC<{
             : [...current, permissionId]);
     };
 
+    const groupedPermissions = useMemo(() => {
+        const groups: Record<string, PermissionRow[]> = {};
+        
+        permissions.forEach((perm) => {
+            const parts = perm.slug.split('.');
+            const menuName = parts[0] || 'Other';
+            if (!groups[menuName]) {
+                groups[menuName] = [];
+            }
+            groups[menuName].push(perm);
+        });
+
+        return Object.entries(groups).sort((a, b) => a[0].localeCompare(b[0]));
+    }, [permissions]);
+
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         setSaving(true);
@@ -174,21 +191,35 @@ const RoleFormModal: React.FC<{
 
             <div>
                 <div className="mb-2 text-sm font-medium text-emerald-900">Permissions</div>
-                <div className="max-h-64 overflow-auto rounded-2xl border border-emerald-100 bg-emerald-50/40 p-3">
-                    <div className="grid gap-2 md:grid-cols-2">
-                        {permissions.map((permission) => (
-                            <label key={permission.id} className="flex items-start gap-3 rounded-xl border border-white bg-white px-3 py-2 text-sm shadow-sm">
-                                <input
-                                    type="checkbox"
-                                    checked={permissionIds.includes(permission.id)}
-                                    onChange={() => togglePermission(permission.id)}
-                                    className="mt-1 accent-emerald-600"
-                                />
-                                <span>
-                                    <span className="block font-semibold text-emerald-950">{permission.name}</span>
-                                    <span className="block text-xs text-emerald-500">{permission.slug}</span>
-                                </span>
-                            </label>
+                <div className="max-h-96 overflow-auto rounded-2xl border border-emerald-100 bg-emerald-50/40 p-4">
+                    <div className="space-y-4">
+                        {groupedPermissions.map(([menuName, perms]) => (
+                            <div key={menuName} className="rounded-xl border border-emerald-100 bg-white p-3">
+                                <div className="mb-3 text-xs font-bold uppercase tracking-wider text-emerald-700">
+                                    {menuName === 'rbac' ? 'RBAC' : menuName === 'users' ? 'Users' : menuName}
+                                </div>
+                                <div className="space-y-2">
+                                    {perms.sort((a, b) => {
+                                        const order = ['view', 'create', 'update', 'delete'];
+                                        const aAction = a.slug.split('.')[1] || '';
+                                        const bAction = b.slug.split('.')[1] || '';
+                                        return order.indexOf(aAction) - order.indexOf(bAction);
+                                    }).map((permission) => (
+                                        <label key={permission.id} className="flex items-start gap-3 rounded-lg border border-emerald-50 bg-emerald-50/50 px-3 py-2 text-sm hover:bg-emerald-100/50 cursor-pointer transition">
+                                            <input
+                                                type="checkbox"
+                                                checked={permissionIds.includes(permission.id)}
+                                                onChange={() => togglePermission(permission.id)}
+                                                className="mt-0.5 accent-emerald-600"
+                                            />
+                                            <span className="flex-1">
+                                                <span className="block font-medium text-emerald-950">{permission.name}</span>
+                                                <span className="block text-xs text-emerald-500">{permission.slug}</span>
+                                            </span>
+                                        </label>
+                                    ))}
+                                </div>
+                            </div>
                         ))}
                     </div>
                 </div>
@@ -372,11 +403,24 @@ const MenuFormModal: React.FC<{
 
 const AdminRbac: React.FC = () => {
     const { show, close } = useModal();
+    const { user } = useAuth();
     const [roles, setRoles] = useState<RoleRow[]>([]);
     const [permissions, setPermissions] = useState<PermissionRow[]>([]);
     const [menus, setMenus] = useState<MenuRow[]>([]);
     const [activeTab, setActiveTab] = useState<'roles' | 'permissions' | 'menus'>('roles');
     const [loading, setLoading] = useState(true);
+
+    // Permission helpers
+    const hasPermission = (slug: string) => user?.permissions?.includes(slug) ?? false;
+    const canCreateRole = hasPermission('rbac.create');
+    const canUpdateRole = hasPermission('rbac.update');
+    const canDeleteRole = hasPermission('rbac.delete');
+    const canCreatePermission = hasPermission('rbac.create');
+    const canUpdatePermission = hasPermission('rbac.update');
+    const canDeletePermission = hasPermission('rbac.delete');
+    const canCreateMenu = hasPermission('rbac.create');
+    const canUpdateMenu = hasPermission('rbac.update');
+    const canDeleteMenu = hasPermission('rbac.delete');
 
     const loadData = async () => {
         setLoading(true);
@@ -489,9 +533,27 @@ const AdminRbac: React.FC = () => {
                     <Button size="md" variant="secondary" Icon={RefreshCcw} onClick={() => void loadData()}>
                         Refresh
                     </Button>
-                    {activeTab === 'roles' && <Button size="md" variant="primary" Icon={Plus} onClick={() => openRoleForm()}>Tambah Role</Button>}
-                    {activeTab === 'permissions' && <Button size="md" variant="primary" Icon={Plus} onClick={() => openPermissionForm()}>Tambah Permission</Button>}
-                    {activeTab === 'menus' && <Button size="md" variant="primary" Icon={Plus} onClick={() => openMenuForm()}>Tambah Menu</Button>}
+                    {activeTab === 'roles' && (
+                        canCreateRole ? (
+                            <Button size="md" variant="primary" Icon={Plus} onClick={() => openRoleForm()}>Tambah Role</Button>
+                        ) : (
+                            <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah role">Tambah Role</Button>
+                        )
+                    )}
+                    {activeTab === 'permissions' && (
+                        canCreatePermission ? (
+                            <Button size="md" variant="primary" Icon={Plus} onClick={() => openPermissionForm()}>Tambah Permission</Button>
+                        ) : (
+                            <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah permission">Tambah Permission</Button>
+                        )
+                    )}
+                    {activeTab === 'menus' && (
+                        canCreateMenu ? (
+                            <Button size="md" variant="primary" Icon={Plus} onClick={() => openMenuForm()}>Tambah Menu</Button>
+                        ) : (
+                            <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah menu">Tambah Menu</Button>
+                        )
+                    )}
                 </div>
             </div>
 
@@ -548,8 +610,16 @@ const AdminRbac: React.FC = () => {
                                                     <td className="px-4 py-3 text-emerald-700">{role.description || '-'}</td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex flex-wrap gap-2">
-                                                            <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openRoleForm(role)}>Edit</Button>
-                                                            <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('role', role.id, role.name)}>Hapus</Button>
+                                                            {canUpdateRole ? (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openRoleForm(role)}>Edit</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} disabled title="Anda tidak punya permission untuk edit role">Edit</Button>
+                                                            )}
+                                                            {canDeleteRole ? (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('role', role.id, role.name)}>Hapus</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} disabled title="Anda tidak punya permission untuk hapus role">Hapus</Button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -574,6 +644,7 @@ const AdminRbac: React.FC = () => {
                                             <tr>
                                                 <th className="px-4 py-3">Nama</th>
                                                 <th className="px-4 py-3">Slug</th>
+                                                <th className="px-4 py-3">Menu</th>
                                                 <th className="px-4 py-3">Deskripsi</th>
                                                 <th className="px-4 py-3">Aksi</th>
                                             </tr>
@@ -583,11 +654,20 @@ const AdminRbac: React.FC = () => {
                                                 <tr key={permission.id} className="hover:bg-emerald-50/40">
                                                     <td className="px-4 py-3 font-semibold text-emerald-950">{permission.name}</td>
                                                     <td className="px-4 py-3 text-emerald-600">{permission.slug}</td>
+                                                    <td className="px-4 py-3 text-emerald-700">{(permission.menus && permission.menus.length > 0) ? permission.menus.map(m => m.label).join(', ') : '-'}</td>
                                                     <td className="px-4 py-3 text-emerald-700">{permission.description || '-'}</td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex flex-wrap gap-2">
-                                                            <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openPermissionForm(permission)}>Edit</Button>
-                                                            <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('permission', permission.id, permission.name)}>Hapus</Button>
+                                                            {canUpdatePermission ? (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openPermissionForm(permission)}>Edit</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} disabled title="Anda tidak punya permission untuk edit permission">Edit</Button>
+                                                            )}
+                                                            {canDeletePermission ? (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('permission', permission.id, permission.name)}>Hapus</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} disabled title="Anda tidak punya permission untuk hapus permission">Hapus</Button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>
@@ -626,8 +706,16 @@ const AdminRbac: React.FC = () => {
                                                     <td className="px-4 py-3 text-emerald-700">{menu.permission_slug || '-'}</td>
                                                     <td className="px-4 py-3">
                                                         <div className="flex flex-wrap gap-2">
-                                                            <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openMenuForm(menu)}>Edit</Button>
-                                                            <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('menu', menu.id, menu.label)}>Hapus</Button>
+                                                            {canUpdateMenu ? (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openMenuForm(menu)}>Edit</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="secondary" Icon={Pencil} disabled title="Anda tidak punya permission untuk edit menu">Edit</Button>
+                                                            )}
+                                                            {canDeleteMenu ? (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete('menu', menu.id, menu.label)}>Hapus</Button>
+                                                            ) : (
+                                                                <Button size="sm" variant="danger" Icon={Trash2} disabled title="Anda tidak punya permission untuk hapus menu">Hapus</Button>
+                                                            )}
                                                         </div>
                                                     </td>
                                                 </tr>

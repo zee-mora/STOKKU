@@ -20,4 +20,11 @@ class Permission extends Model
     {
         return $this->belongsToMany(Role::class, 'role_permissions')->withTimestamps();
     }
+
+    public function menus(): BelongsToMany
+    {
+        return $this->belongsToMany(MenuItem::class, 'menu_permissions', 'permission_id', 'menu_id')
+            ->withPivot('enabled')
+            ->withTimestamps();
+    }
 }

@@ -1,14 +1,11 @@
 <?php
 
-use App\Http\Controllers\Api\ExpensesController;
-use App\Http\Controllers\Api\PenghuniController;
-use App\Http\Controllers\Api\RumahController;
-use App\Http\Controllers\Api\PaymentsController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\Admin\MenuController;
-use App\Http\Controllers\Api\Admin\PermissionController;
-use App\Http\Controllers\Api\Admin\RoleController;
+use App\Http\Controllers\Api\Settings\MenuController;
+use App\Http\Controllers\Api\Settings\PermissionController;
+use App\Http\Controllers\Api\Settings\RoleController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\Admin\BarangController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -35,13 +32,7 @@ Route::middleware('auth:api')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
     Route::get('/navigation', [AuthController::class, 'navigation']);
 
-    // RBAC Administration
-    Route::prefix('admin')->middleware('permission:rbac.manage')->group(function () {
-        Route::get('/users', [UserController::class, 'index']);
-        Route::post('/users', [UserController::class, 'store']);
-        Route::put('/users/{user}', [UserController::class, 'update']);
-        Route::delete('/users/{user}', [UserController::class, 'destroy']);
-
+    Route::prefix('admin')->middleware('permission:rbac.view')->group(function () {
         Route::get('/roles', [RoleController::class, 'index']);
         Route::post('/roles', [RoleController::class, 'store']);
         Route::put('/roles/{role}', [RoleController::class, 'update']);
@@ -57,4 +48,24 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/menus/{menu}', [MenuController::class, 'update']);
         Route::delete('/menus/{menu}', [MenuController::class, 'destroy']);
     });
+
+    Route::prefix('admin')->middleware('permission:user.view')->group(function () {
+        Route::get('/users', [UserController::class, 'index']);
+        Route::post('/users', [UserController::class, 'store']);
+        Route::put('/users/{user}', [UserController::class, 'update']);
+        Route::delete('/users/{user}', [UserController::class, 'destroy']);
+    });
+
+    Route::prefix('staff')->middleware('permission:request-barang.view')->group(function () {
+        Route::get('/request-barang', [UserController::class,'index']);
+    });
+
+    Route::prefix('admin')->middleware('permission:barang.view')->group(function () {
+        Route::get('/barang', [BarangController::class, 'index']);
+        Route::post('/barang', [BarangController::class, 'store']);
+        Route::get('/barang/datatables', [BarangController::class, 'datatables']);
+        Route::put('/barang/{barang}', [BarangController::class, 'update']);
+        Route::delete('/barang/{barang}', [BarangController::class, 'destroy']);
+    });
+
 });

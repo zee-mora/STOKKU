@@ -4,6 +4,7 @@ import PageContainer from '../../../components/layout/PageContainer';
 import Breadcrumb from '../../../components/ui/Breadcrumb';
 import Button from '../../../components/ui/Button';
 import { useModal } from '../../../hooks/UseModal';
+import { useAuth } from '../../../hooks/useAuth';
 import api from '../../../api/axios';
 import { showConfirmDialog, showToast } from '../../../utils/alert';
 
@@ -24,7 +25,7 @@ type UserRow = {
 type UserPayload = {
     name: string;
     email: string;
-    password?: string;
+    password?: string | null;
     role_id: number;
 };
 
@@ -55,9 +56,11 @@ const UserFormModal: React.FC<{
             await onSubmit({
                 name,
                 email,
-                password: password.trim() || undefined,
+                password: password.trim() ? password.trim() : null,
                 role_id: Number(roleId),
             });
+        } catch (error: any) {
+            showToast('error', 'Gagal', error.response?.data?.message || 'Terjadi kesalahan saat menyimpan user.');
         } finally {
             setSaving(false);
         }
@@ -99,9 +102,15 @@ const UserFormModal: React.FC<{
 
 const AdminUsers: React.FC = () => {
     const { show, close } = useModal();
+    const { user } = useAuth();
     const [users, setUsers] = useState<UserRow[]>([]);
     const [roles, setRoles] = useState<RoleRow[]>([]);
     const [loading, setLoading] = useState(true);
+
+    const hasPermission = (slug: string) => user?.permissions?.includes(slug) ?? false;
+    const canCreate = hasPermission('users.create');
+    const canUpdate = hasPermission('users.update');
+    const canDelete = hasPermission('users.delete');
 
     const loadData = async () => {
         setLoading(true);
@@ -170,7 +179,11 @@ const AdminUsers: React.FC = () => {
 
                 <div className="flex flex-wrap gap-2">
                     <Button size="md" variant="secondary" Icon={RefreshCcw} onClick={() => void loadData()}>Refresh</Button>
-                    <Button size="md" variant="primary" Icon={Plus} onClick={() => openUserForm()}>Tambah User</Button>
+                    {canCreate ? (
+                        <Button size="md" variant="primary" Icon={Plus} onClick={() => openUserForm()}>Tambah User</Button>
+                    ) : (
+                        <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah user">Tambah User</Button>
+                    )}
                 </div>
             </div>
 
@@ -199,8 +212,16 @@ const AdminUsers: React.FC = () => {
                                     <td className="px-4 py-3 text-emerald-700">{user.role?.name || '-'}</td>
                                     <td className="px-4 py-3">
                                         <div className="flex flex-wrap gap-2">
-                                            <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openUserForm(user)}>Edit</Button>
-                                            <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete(user)}>Hapus</Button>
+                                            {canUpdate ? (
+                                                <Button size="sm" variant="secondary" Icon={Pencil} onClick={() => openUserForm(user)}>Edit</Button>
+                                            ) : (
+                                                <Button size="sm" variant="secondary" Icon={Pencil} disabled title="Anda tidak punya permission untuk edit user">Edit</Button>
+                                            )}
+                                            {canDelete ? (
+                                                <Button size="sm" variant="danger" Icon={Trash2} onClick={() => void handleDelete(user)}>Hapus</Button>
+                                            ) : (
+                                                <Button size="sm" variant="danger" Icon={Trash2} disabled title="Anda tidak punya permission untuk hapus user">Hapus</Button>
+                                            )}
                                         </div>
                                     </td>
                                 </tr>

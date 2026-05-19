@@ -5,9 +5,12 @@ import MainLayout from "../components/layout/MainLayout";
 
 // Pages Section
 import Login from "../pages/Login";
-import Dashboard from "../pages/Dashboard";
 import AdminRbac from "../pages/Admin/Rbac";
 import AdminUsers from "../pages/Admin/Users";
+import RequestBarang from "../pages/Staff/Request-Barang";
+import Barang from "../pages/Admin/barang";
+import DashboardStaff from "../pages/Staff/Dashboard";
+import DashboardAdmin from "../pages/Admin/Dashboard";
 
 const PrivateRoute = () => {
   const token = localStorage.getItem("access_token");
@@ -37,11 +40,29 @@ const AppRoutes = () => {
         <Route element={<MainLayout />}>
           {/* Redirect default dashboard */}
           <Route path="/" element={<Navigate to="/admin/users" replace />} />
-          <Route path="/dashboard" element={<Dashboard />} />
 
-          <Route element={<PermissionRoute permission="rbac.manage" />}>
-            <Route path="admin/users" element={<AdminUsers />} />
+          <Route element={<PermissionRoute permission="rbac.view" />}>
             <Route path="admin/rbac" element={<AdminRbac />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="users.view" />}>
+            <Route path="admin/users" element={<AdminUsers />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="request-barang.view" />}>
+            <Route path="staff/barang" element={<RequestBarang />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="dashboard-staff.view" />}>
+            <Route path="staff/dashboard" element={<DashboardStaff />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="barang.view" />}>
+            <Route path="admin/barang" element={<Barang />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="dashboard-admin.view" />}>
+            <Route path="admin/dashboard" element={<DashboardAdmin />} />
           </Route>
 
         </Route>

@@ -41,7 +41,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
     const renderMenuItem = (item: NavigationItem, depth = 0) => {
         const Icon = resolveIcon(item.icon);
         const hasChildren = (item.children?.length ?? 0) > 0;
+        
+        // Check permission based on menu.permissions array
+        const menuPermissions = item.permissions ?? [];
+        const hasMenuPermissions = menuPermissions.length > 0;
+        const hasPermission = !hasMenuPermissions || menuPermissions.some(perm => user?.permissions?.includes(perm.slug));
 
+        // Group menu (parent without route)
         if (!item.route && hasChildren) {
             return (
                 <div key={item.id} className="space-y-0.5">
@@ -57,7 +63,13 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onToggle }) => {
             );
         }
 
+        // Menu tanpa route dan tanpa children
         if (!item.route) {
+            return null;
+        }
+
+        // Hide menu jika user tidak punya permission
+        if (!hasPermission) {
             return null;
         }
 

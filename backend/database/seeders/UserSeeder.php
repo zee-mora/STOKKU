@@ -16,15 +16,36 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        $adminRoleId = Role::query()->where('slug', 'super-admin')->value('id');
+        $superAdminRoleId = Role::query()->where('slug', 'super-admin')->value('id');
+        $adminRoleId = Role::query()->where('slug', 'admin')->value('id');
+        $staffRoleId = Role::query()->where('slug', 'staff')->value('id');
+
+        User::query()->updateOrCreate(
+            ['email' => 'superadmin@example.com'],
+            [
+                'name' => 'Super Admin',
+                'role_id' => $superAdminRoleId,
+                'password' => Hash::make('password'),
+            ],
+        );
 
         User::query()->updateOrCreate(
             ['email' => 'admin@example.com'],
             [
                 'name' => 'Admin',
                 'role_id' => $adminRoleId,
-                'password' => Hash::make('admin'),
+                'password' => Hash::make('password'),
+            ],
+        );
+
+        User::query()->updateOrCreate(
+            ['email' => 'staff@example.com'],
+            [
+                'name' => 'Staff',
+                'role_id' => $staffRoleId,
+                'password' => Hash::make('password'),
             ],
         );
     }
 }
+

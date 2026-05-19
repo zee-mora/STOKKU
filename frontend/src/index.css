@@ -1,6 +1,10 @@
 @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap");
 @import "tailwindcss";
 
+* {
+    box-sizing: border-box;
+}
+
 :root {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
@@ -8,6 +12,7 @@
 body {
     font-family: inherit;
 }
+
 
 .login-bg {
     background-image: linear-gradient(to bottom, #cdffef, #ffffff);
