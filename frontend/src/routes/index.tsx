@@ -8,10 +8,12 @@ import Login from "../pages/Login";
 import AdminRbac from "../pages/Admin/Rbac";
 import AdminUsers from "../pages/Admin/Users";
 import RequestBarang from "../pages/Staff/Request-Barang";
+import RequestDetailPage from "../pages/Staff/Request-Barang/Detail";
 import Barang from "../pages/Admin/barang";
 import DashboardStaff from "../pages/Staff/Dashboard";
 import DashboardAdmin from "../pages/Admin/Dashboard";
 import Unauthorized from "../pages/Unauthorized";
+import Approval from "../pages/Admin/Approval";
 
 const PrivateRoute = () => {
   const token = localStorage.getItem("access_token");
@@ -52,6 +54,7 @@ const AppRoutes = () => {
 
           <Route element={<PermissionRoute permission="request-barang.view" />}>
             <Route path="staff/request-barang" element={<RequestBarang />} />
+            <Route path="staff/request/:id" element={<RequestDetailPage />} />
           </Route>
 
           <Route element={<PermissionRoute permission="dashboard-staff.view" />}>
@@ -60,6 +63,10 @@ const AppRoutes = () => {
 
           <Route element={<PermissionRoute permission="barang.view" />}>
             <Route path="admin/barang" element={<Barang />} />
+          </Route>
+
+          <Route element={<PermissionRoute permission="approval.view" />}>
+            <Route path="admin/approval" element={<Approval />} />
           </Route>
 
           <Route element={<PermissionRoute permission="dashboard-admin.view" />}>

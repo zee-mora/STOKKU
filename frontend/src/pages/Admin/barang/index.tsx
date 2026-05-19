@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Pencil, Trash2, RefreshCw } from 'lucide-react';
 import PageContainer from '../../../components/layout/PageContainer';
 import Breadcrumb from '../../../components/ui/Breadcrumb';
 import Button from '../../../components/ui/Button';
@@ -132,6 +132,7 @@ const AdminBarang: React.FC = () => {
         }
     };
 
+
     return (
         <PageContainer>
             <Breadcrumb items={[{ label: 'Admin' }, { label: 'Barang' }]} />
@@ -141,12 +142,16 @@ const AdminBarang: React.FC = () => {
                     <h1 className="text-2xl font-bold text-emerald-950">Manajemen Barang</h1>
                     <p className="text-sm text-emerald-600">Kelola data barang dan stok inventori.</p>
                 </div>
-
-                {canCreate ? (
-                    <Button size="md" variant="primary" Icon={Plus} onClick={() => openBarangForm()}>Tambah Barang</Button>
-                ) : (
-                    <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah barang">Tambah Barang</Button>
-                )}
+                <div className="flex gap-2">
+                    <Button Icon={RefreshCw} size="md" variant="secondary" onClick={() => datatableRefetchRegistry.get('barang')?.()}>
+                        Refresh
+                    </Button>
+                    {canCreate ? (
+                        <Button size="md" variant="primary" Icon={Plus} onClick={() => openBarangForm()}>Tambah Barang</Button>
+                    ) : (
+                        <Button size="md" variant="primary" Icon={Plus} disabled title="Anda tidak punya permission untuk tambah barang">Tambah Barang</Button>
+                    )}
+                </div>
             </div>
 
             <DataTable<BarangRow>

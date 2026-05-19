@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\Settings\PermissionController;
 use App\Http\Controllers\Api\Settings\RoleController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\Admin\BarangController;
+use App\Http\Controllers\Api\Admin\ApprovalController;
+use App\Http\Controllers\Api\Staff\RequestBarang;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +15,7 @@ use Illuminate\Support\Facades\Route;
 | Public Routes
 |--------------------------------------------------------------------------
 */
+
 Route::get('', function () {
     return response()->json([
         'message' => 'Welcome to the STOKKU API',
@@ -57,7 +60,23 @@ Route::middleware('auth:api')->group(function () {
     });
 
     Route::prefix('staff')->middleware('permission:request-barang.view')->group(function () {
-        Route::get('/request-barang', [UserController::class,'index']);
+        Route::get('/request-barang', [UserController::class, 'index']);
+    });
+
+    Route::prefix('request-items')->group(function () {
+        Route::get('/items', [RequestBarang::class, 'getItems']);
+        Route::get('/my-requests', [RequestBarang::class, 'myRequests']);
+        Route::post('/bulk', [RequestBarang::class, 'bulkStore']);
+        Route::get('/{request}', [RequestBarang::class, 'show']);
+        Route::delete('/{request}', [RequestBarang::class, 'destroy']);
+    });
+
+    Route::prefix('admin')->middleware('permission:approval.view')->group(function () {
+        Route::get('/approval', [ApprovalController::class, 'index']);
+        Route::get('/approval/{approval}', [ApprovalController::class, 'show']);
+        Route::post('/approval/{approval}/action', [ApprovalController::class, 'action']);
+        Route::get('/approval-stats/statistics', [ApprovalController::class, 'statistics']);
+        Route::get('/approval-stats/count-per-status', [ApprovalController::class, 'countStatus']);
     });
 
     Route::prefix('admin')->middleware('permission:barang.view')->group(function () {
@@ -67,5 +86,4 @@ Route::middleware('auth:api')->group(function () {
         Route::put('/barang/{barang}', [BarangController::class, 'update']);
         Route::delete('/barang/{barang}', [BarangController::class, 'destroy']);
     });
-
 });

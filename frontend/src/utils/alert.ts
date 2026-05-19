@@ -73,6 +73,8 @@ export const showPrompt = (title: string, inputLabel: string, inputPlaceholder: 
 
 export const showCustomDialog = (htmlContent: string, confirmButtonText: string, cancelButtonText: string) => {
     return Swal.fire({
+        icon: 'question',
+        title: 'Apakah Anda yakin?',
         html: htmlContent,
         showCancelButton: true,
         confirmButtonColor: '#059669',

@@ -162,7 +162,7 @@ class DatabaseSeeder extends Seeder
         $adminPermissions = Permission::query()
             ->whereIn('slug', [
                 'dashboard-admin.view', 'dashboard-admin.create', 'dashboard-admin.update', 'dashboard-admin.delete',
-                'barang.view', 'barang.create', 'barang.update', 'barang.delete',
+                'barang.view', 'barang.create', 'barang.update', 'barang.delete', 'approval.view', 'approval.create', 'approval.update', 'approval.delete',
             ])
             ->pluck('id');
         $adminRole->permissions()->sync($adminPermissions);

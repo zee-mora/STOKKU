@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId("user_id")->constrained("users");
             $table->integer("jumlah");
             $table->enum("status", ["PENDING","APPROVED","REJECTED"])->default("PENDING");
+            $table->text("reason")->nullable();
             $table->timestamps();
         });
     }
