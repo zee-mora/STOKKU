@@ -139,13 +139,24 @@ class DatabaseSeeder extends Seeder
             ],
         );
 
+        $approvalMenu = MenuItem::query()->updateOrCreate(
+            ['label' => 'Approval', 'parent_id' => $adminParent->id],
+            [
+                'route' => '/admin/approval',
+                'icon' => 'Receipt',
+                'permission_slug' => null,
+                'sort_order' => 3,
+                'is_active' => true,
+            ],
+        );
+
         $this->createCrudPermissionsForMenu($usersMenu);
         $this->createCrudPermissionsForMenu($rbacMenu);
         $this->createCrudPermissionsForMenu($dashboardAdminMenu);
         $this->createCrudPermissionsForMenu($dashboardStaffMenu);
         $this->createCrudPermissionsForMenu($barangMenu);
         $this->createCrudPermissionsForMenu($requestBarangMenu);
-
+        $this->createCrudPermissionsForMenu($approvalMenu);
         $superAdminRole->permissions()->sync(Permission::query()->pluck('id')->all());
 
         $adminPermissions = Permission::query()
