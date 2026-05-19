@@ -11,6 +11,7 @@ import RequestBarang from "../pages/Staff/Request-Barang";
 import Barang from "../pages/Admin/barang";
 import DashboardStaff from "../pages/Staff/Dashboard";
 import DashboardAdmin from "../pages/Admin/Dashboard";
+import Unauthorized from "../pages/Unauthorized";
 
 const PrivateRoute = () => {
   const token = localStorage.getItem("access_token");
@@ -25,7 +26,7 @@ const PermissionRoute = ({ permission }: { permission: string }) => {
   }
 
   if (!user?.permissions?.includes(permission)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Unauthorized />;
   }
 
   return <Outlet />;
