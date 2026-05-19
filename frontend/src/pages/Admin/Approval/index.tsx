@@ -6,6 +6,7 @@ import type { ColumnDef } from '@tanstack/react-table';
 import Button from '../../../components/ui/Button';
 import api from '../../../api/axios';
 import { showCustomDialog, showPrompt, showToast } from '../../../utils/alert';
+import Breadcrumb from '../../../components/ui/Breadcrumb';
 
 interface ApiRequestData {
   id: number;
@@ -268,6 +269,7 @@ const Approval: React.FC = () => {
 
   return (
     <PageContainer>
+      <Breadcrumb items={[{ label: 'Admin' }, { label: 'Approval' }]} />
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Manajemen Persetujuan</h1>
         <p className="mt-2 text-gray-600">Proses dan pantau permintaan barang dari staff kantor</p>

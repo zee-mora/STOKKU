@@ -4,6 +4,7 @@ import PageContainer from '../../../components/layout/PageContainer';
 import Button from '../../../components/ui/Button';
 import api from '../../../api/axios';
 import StatCard from '../../../components/ui/StatCard';
+import Breadcrumb from '../../../components/ui/Breadcrumb';
 
 interface Stats {
   pending: number;
@@ -103,7 +104,7 @@ const DashboardAdmin: React.FC = () => {
 
   return (
     <PageContainer>
-      {/* Header */}
+      <Breadcrumb items={[{ label: 'Admin' }, { label: 'Dashboard' }]} />
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900">Dashboard Admin</h1>
         <p className="text-gray-600 mt-2">Selamat datang! Pantau statistik sistem secara real-time</p>
@@ -147,7 +148,6 @@ const DashboardAdmin: React.FC = () => {
         />
       </div>
 
-      {/* Recent Requests Section */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
@@ -190,7 +190,6 @@ const DashboardAdmin: React.FC = () => {
           </div>
         </div>
 
-        {/* Sidebar */}
         <div className="space-y-6">
           {/* Quick Actions */}
           <div className="bg-white rounded-2xl shadow-lg p-8 border border-gray-200/50">

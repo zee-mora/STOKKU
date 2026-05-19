@@ -4,6 +4,7 @@ import PageContainer from '../../../components/layout/PageContainer';
 import Button from '../../../components/ui/Button';
 import api from '../../../api/axios';
 import StatCard from '../../../components/ui/StatCard';
+import Breadcrumb from '../../../components/ui/Breadcrumb';
 
 interface Stats {
   pending: number;
@@ -108,7 +109,7 @@ const DashboardStaff: React.FC = () => {
 
   return (
     <PageContainer>
-      {/* Header */}
+      <Breadcrumb items={[{ label: 'Staff' }, { label: 'Dashboard' }]} />
       <div className="mb-8 flex items-center justify-between">
         <div>
           <h1 className="text-4xl font-bold text-gray-900">Dashboard Staff</h1>
@@ -116,7 +117,6 @@ const DashboardStaff: React.FC = () => {
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         <StatCard
           Icon=""

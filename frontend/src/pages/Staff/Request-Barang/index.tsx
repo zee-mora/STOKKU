@@ -7,6 +7,7 @@ import { type ColumnDef } from "@tanstack/react-table";
 import api from "../../../api/axios";
 import RequestForm from "./RequestForm";
 import Button from "../../../components/ui/Button";
+import Breadcrumb from "../../../components/ui/Breadcrumb";
 
 interface RequestHistory {
   id: string | number;
@@ -139,6 +140,7 @@ const RequestBarang: React.FC = () => {
 
   return (
     <PageContainer>
+      <Breadcrumb items={[{ label: 'Staff' }, { label: 'Request Barang' }]} />
       <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900">Request Barang</h1>
         <p className="mt-2 text-gray-600">
