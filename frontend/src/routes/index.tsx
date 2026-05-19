@@ -51,7 +51,7 @@ const AppRoutes = () => {
           </Route>
 
           <Route element={<PermissionRoute permission="request-barang.view" />}>
-            <Route path="staff/barang" element={<RequestBarang />} />
+            <Route path="staff/request-barang" element={<RequestBarang />} />
           </Route>
 
           <Route element={<PermissionRoute permission="dashboard-staff.view" />}>
