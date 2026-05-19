@@ -18,7 +18,7 @@ const LoginPage: React.FC = () => {
 		<div className="login-bg font-sans min-h-screen flex items-center justify-center p-4">
 			<div className="w-sm max-w-md">
 				<div className="flex items-center justify-center">
-					<h1 className="text-3xl font-extrabold text-emerald-900 mb-8">STOKKU Skillfit</h1>
+					<h1 className="text-3xl font-extrabold text-emerald-900 mb-8">STOKKU  </h1>
 				</div>
 				<div className="bg-linear-230 from-white to-emerald-100 backdrop-blur-md p-8 rounded-2xl shadow-2xl border border-white/50">
 					<div className='text-center mb-8'>
@@ -81,7 +81,7 @@ const LoginPage: React.FC = () => {
 						</button>
 					</form>
 				</div>
-				<p className="text-center text-emerald-800/40 text-xs mt-8 font-bold">&copy; 2026 STOKKU SkillFit - All rights reserved.</p>
+				<p className="text-center text-emerald-800/40 text-xs mt-8 font-bold">&copy; 2026 STOKKU   - All rights reserved.</p>
 			</div>
 		</div>
 	);
