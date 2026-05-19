@@ -13,6 +13,10 @@ class ApprovalController extends Controller
 {
     /**
      * Get approval requests by status
+     * Query params: status (PENDING, APPROVED, REJECTED), page, per_page
+     * Returns paginated list of approval requests with item and user details
+     * @param Request $request
+     * @return JsonResponse
      */
     public function index(Request $request): JsonResponse
     {
@@ -41,6 +45,8 @@ class ApprovalController extends Controller
 
     /**
      * Get single approval request
+     * @param Approval $approval
+     * @return JsonResponse
      */
     public function show(Approval $approval): JsonResponse
     {
@@ -51,7 +57,10 @@ class ApprovalController extends Controller
     }
 
     /**
-     * Approve or reject request
+     * Function untuk approve atau reject request barang berdasarkan ID request
+     * @param Request $request
+     * @param Approval $approval
+     * @return JsonResponse
      */
     public function action(Request $request, Approval $approval): JsonResponse
     {
@@ -109,7 +118,8 @@ class ApprovalController extends Controller
     }
 
     /**
-     * Get statistics
+     * get statics untuk dashboard admin
+     * @return JsonResponse
      */
     public function statistics(): JsonResponse
     {
@@ -127,6 +137,10 @@ class ApprovalController extends Controller
         ]);
     }
 
+    /**
+     * get count untuk setiap status approval
+     * @return JsonResponse
+     */
     public function countStatus(): JsonResponse
     {
         $stats = [

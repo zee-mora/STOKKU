@@ -15,6 +15,7 @@ class RequestBarang extends Controller
 
     /**
      * Get all items for request form
+     * @return JsonResponse
      */
     public function getItems(): JsonResponse
     {
@@ -27,7 +28,10 @@ class RequestBarang extends Controller
     }
 
     /**
-     * Submit bulk request items
+     * Submit bulk request items jadi user bisa submit beberapa item sekaligus
+     * Validasi: pastikan item_id valid, jumlah > 0, dan tidak ada duplikasi item_id dalam satu request
+     * @param Request $request
+     * @return JsonResponse
      */
     public function bulkStore(Request $request): JsonResponse
     {
@@ -97,6 +101,8 @@ class RequestBarang extends Controller
 
     /**
      * Get my requests
+     * function untuk menampilkan semua request barang yang dibuat oleh user yang sedang login
+     * @return JsonResponse
      */
     public function myRequests(): JsonResponse
     {
@@ -115,6 +121,9 @@ class RequestBarang extends Controller
 
     /**
      * Get request by ID
+     * function untuk menampilkan detail request barang berdasarkan ID request, hanya bisa diakses oleh user yang membuat request tersebut
+     * @param Approval $request
+     * @return JsonResponse
      */
     public function show(Approval $request): JsonResponse
     {
@@ -134,6 +143,10 @@ class RequestBarang extends Controller
 
     /**
      * Datatable endpoint for admin
+     * Query params: status (PENDING, APPROVED, REJECTED), page
+     * Returns paginated list of approval requests with item and user details, filtered by status
+     * @param Request $request
+     * @return JsonResponse
      */
     public function datatable(Request $request): JsonResponse
     {
@@ -158,6 +171,9 @@ class RequestBarang extends Controller
 
     /**
      * Destroy a request (staff can only delete pending requests)
+     * function untuk menghapus request barang berdasarkan ID request, hanya bisa dihapus jika status masih PENDING dan hanya bisa dihapus oleh user yang membuat request tersebut
+     * @param Approval $request
+     * @return JsonResponse
      */
     public function destroy(Approval $request): JsonResponse
     {
