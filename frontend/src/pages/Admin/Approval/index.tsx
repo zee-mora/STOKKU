@@ -70,87 +70,6 @@ const Approval: React.FC = () => {
     }
   }, [activeTab]);
 
-  useEffect(() => {
-    void fetchRequests();
-  }, [fetchRequests]);
-
-  const handleAction = async (id: number, action: 'approve' | 'reject') => {
-    const request = requests.find(r => r.id === id);
-    if (!request) return;
-
-    // validasi stok sebelum menyetujui
-    if (action === 'approve' && request.currentStock < request.requestedQty) {
-      setMessage({
-        type: 'error',
-        text: `Gagal! Stok ${request.itemName} tidak mencukupi (tersedia: ${request.currentStock}, diminta: ${request.requestedQty})`,
-      });
-      return;
-    }
-
-    if (action === 'approve'){
-        const actionText = 'MENYETUJUI';
-        const actionColor = '#22c55e';
-        const htmlContent = `Anda akan <span style="color: ${actionColor}; font-weight: bold; font-size: 18px;">${actionText}</span> permintaan ini.`;
-    
-        const result = await showCustomDialog(htmlContent, 'Iya', 'Batal');
-        if (!result.isConfirmed) {
-          return;
-        }
-    }
-
-    let rejectionReason = '';
-    if (action === 'reject') {
-      const reasonResult = await showPrompt('Alasan Penolakan', 'Masukkan alasan penolakan:', 'Contoh: Stok tidak cukup');
-      if (!reasonResult.isConfirmed || !reasonResult.value) {
-        return;
-      }
-      rejectionReason = reasonResult.value;
-    }
-
-    try {
-      setProcessingId(id);
-      const response = await api.post(`/admin/approval/${id}/action`, {
-        action: action === 'approve' ? 'APPROVED' : 'REJECTED',
-        reason: rejectionReason,
-      });
-
-      if (response.data.success) {
-        showToast(response.data.status, 'Request Status', response.data.message);
-
-        setRequests(prevRequests =>
-          prevRequests.map(req =>
-            req.id === id
-              ? {
-                  ...req,
-                  status: action === 'approve' ? 'APPROVED' : 'REJECTED',
-                  currentStock:
-                    action === 'approve'
-                      ? req.currentStock - req.requestedQty
-                      : req.currentStock,
-                }
-              : req
-          )
-        );
-
-        setTimeout(() => {
-          fetchRequests();
-        }, 1000);
-      }
-    } catch (error) {
-      console.error('Error processing request:', error);
-      setMessage({ type: 'error', text: 'Gagal memproses request' });
-    } finally {
-      setProcessingId(null);
-    }
-  };
-
-  const filteredRequests = requests.filter(req => req.status === activeTab);
-
-  // formating untuk count tab
-  const formatCount = (count: number): string => {
-    return count >= 100 ? '99+' : count.toString();
-  };
-
   const fetchAllCounts = useCallback(async () => {
     try {
       const statuses: Array<'PENDING' | 'APPROVED' | 'REJECTED'> = ['PENDING', 'APPROVED', 'REJECTED'];
@@ -178,8 +97,86 @@ const Approval: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    void fetchRequests();
     void fetchAllCounts();
-  }, [fetchAllCounts]);
+  }, [fetchRequests, fetchAllCounts]);
+
+  const handleAction = async (id: number, action: 'approve' | 'reject') => {
+    const request = requests.find(r => r.id === id);
+    if (!request) return;
+
+    // validasi stok sebelum menyetujui
+    if (action === 'approve' && request.currentStock < request.requestedQty) {
+      setMessage({
+        type: 'error',
+        text: `Gagal! Stok ${request.itemName} tidak mencukupi (tersedia: ${request.currentStock}, diminta: ${request.requestedQty})`,
+      });
+      return;
+    }
+
+    if (action === 'approve') {
+      const actionText = 'MENYETUJUI';
+      const actionColor = '#22c55e';
+      const htmlContent = `Anda akan <span style="color: ${actionColor}; font-weight: bold; font-size: 18px;">${actionText}</span> permintaan ini.`;
+
+      const result = await showCustomDialog(htmlContent, 'Iya', 'Batal');
+      if (!result.isConfirmed) {
+        return;
+      }
+    }
+
+    let rejectionReason = '';
+    if (action === 'reject') {
+      const reasonResult = await showPrompt('Alasan Penolakan', 'Masukkan alasan penolakan:', 'Contoh: Stok tidak cukup');
+      if (!reasonResult.isConfirmed || !reasonResult.value) {
+        return;
+      }
+      rejectionReason = reasonResult.value;
+    }
+
+    try {
+      setProcessingId(id);
+      const response = await api.post(`/admin/approval/${id}/action`, {
+        action: action === 'approve' ? 'APPROVED' : 'REJECTED',
+        reason: rejectionReason,
+      });
+
+      if (response.data.success) {
+        showToast(response.data.status, 'Request Status', response.data.message);
+
+        setRequests(prevRequests =>
+          prevRequests.map(req =>
+            req.id === id
+              ? {
+                ...req,
+                status: action === 'approve' ? 'APPROVED' : 'REJECTED',
+                currentStock:
+                  action === 'approve'
+                    ? req.currentStock - req.requestedQty
+                    : req.currentStock,
+              }
+              : req
+          )
+        );
+
+        setTimeout(() => {
+          fetchRequests();
+        }, 1000);
+      }
+    } catch (error) {
+      console.error('Error processing request:', error);
+      setMessage({ type: 'error', text: 'Gagal memproses request' });
+    } finally {
+      setProcessingId(null);
+    }
+  };
+
+  const filteredRequests = requests.filter(req => req.status === activeTab);
+
+  // formating untuk count tab
+  const formatCount = (count: number): string => {
+    return count >= 100 ? '99+' : count.toString();
+  };
 
   const columns: ColumnDef<RequestItem>[] = [
     {
@@ -201,12 +198,11 @@ const Approval: React.FC = () => {
           <div className="text-xs mt-1">
             Sisa Stok:{' '}
             <span
-              className={`font-semibold ${
-                info.row.original.currentStock < info.row.original.requestedQty &&
+              className={`font-semibold ${info.row.original.currentStock < info.row.original.requestedQty &&
                 activeTab === 'PENDING'
-                  ? 'text-red-600'
-                  : 'text-gray-600'
-              }`}
+                ? 'text-red-600'
+                : 'text-gray-600'
+                }`}
             >
               {info.row.original.currentStock} pcs
             </span>
@@ -277,11 +273,10 @@ const Approval: React.FC = () => {
 
       {message && (
         <div
-          className={`flex items-start gap-3 p-4 rounded-lg border mb-6 ${
-            message.type === 'success'
-              ? 'bg-green-50 border-green-200 text-green-800'
-              : 'bg-red-50 border-red-200 text-red-800'
-          }`}
+          className={`flex items-start gap-3 p-4 rounded-lg border mb-6 ${message.type === 'success'
+            ? 'bg-green-50 border-green-200 text-green-800'
+            : 'bg-red-50 border-red-200 text-red-800'
+            }`}
         >
           {message.type === 'success' ? (
             <CheckCircle2 size={20} className="flex-shrink-0 mt-0.5" />
@@ -297,18 +292,17 @@ const Approval: React.FC = () => {
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
-            className={`px-4 py-3 font-medium border-b-2 transition-colors flex items-center gap-2 ${
-              activeTab === tab
-                ? 'border-emerald-600 text-emerald-600'
-                : 'border-transparent text-gray-600 hover:text-gray-900'
-            }`}
+            className={`px-4 py-3 font-medium border-b-2 transition-colors flex items-center gap-2 ${activeTab === tab
+              ? 'border-emerald-600 text-emerald-600'
+              : 'border-transparent text-gray-600 hover:text-gray-900'
+              }`}
           >
             {tab === 'PENDING' && <Clock size={18} />}
             {tab === 'APPROVED' && <CheckCircle2 size={18} />}
             {tab === 'REJECTED' && <XCircle size={18} />}
             <span className="capitalize">{tab.toLowerCase()}</span>
             <span className="inline-flex items-center justify-center min-w-6 h-6 bg-gray-200 text-gray-700 rounded-full text-xs font-semibold">
-                {formatCount(tabCounts[tab])}
+              {formatCount(tabCounts[tab])}
             </span>
           </button>
         ))}
