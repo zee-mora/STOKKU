@@ -14,6 +14,20 @@ Before you begin, ensure you have the following installed on your system:
 
 ## 🚀 Quick Start
 
+### User to login
+
+- SuperAdmin For RBAC Setting
+email: superadmin@example.com
+password: password
+
+- Admin For Manage Barang and Approval
+email: admin@example.com
+password: password
+
+- Staff for Request barang
+email: staff@example.com
+password: password
+
 ### 1. Clone the Repository
 
 ```bash
@@ -56,7 +70,7 @@ STOKKU/
 │   ├── database/    # Migrations & seeders
 │   ├── routes/      # API routes
 │   └── .env         # Environment variables
-├── frontend/        # Vue.js/React SPA
+├── frontend/        # React VIte SPA
 │   ├── src/        # Source code
 │   ├── public/     # Static assets
 │   └── .env        # Environment variables
