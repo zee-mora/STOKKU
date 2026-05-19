@@ -28,7 +28,7 @@ password: password
 email: staff@example.com
 password: password
 
-*note its available after php artisan migrate or npm run setup in root project
+*note its available after php artisan migrate --seed or npm run setup in root project
 
 ### 1. Clone the Repository
 
